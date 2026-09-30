@@ -11,7 +11,7 @@
 <style id="pageRule">@page{size:A4 portrait;margin:8mm}</style>
 </head>
 <body>
-<div class="toolbar"><label><select id="size" aria-label="枠数"><option value="4">4枠</option><option value="8">8枠</option><option value="16" selected>16枠</option><option value="32">32枠</option></select></label><label><select id="orientation" aria-label="用紙の向き"><option value="portrait">A4縦</option><option value="landscape">A4横</option></select></label><button id="print">PDF出力</button></div>
+<div class="toolbar"><label><select id="size" aria-label="枠数"><option value="4">4枠</option><option value="8" selected>8枠</option><option value="16">16枠</option><option value="32">32枠</option></select></label><label><select id="orientation" aria-label="用紙の向き"><option value="portrait">A4縦</option><option value="landscape">A4横</option></select></label><button id="print">PDF出力</button></div>
 <main class="sheet portrait" id="sheet"><div class="title-line"></div><svg class="bracket" id="bracket" xmlns="http://www.w3.org/2000/svg" aria-label="空欄のトーナメント表"></svg></main>
 <script>
 const NS='http://www.w3.org/2000/svg';const size=document.getElementById('size'),orientation=document.getElementById('orientation'),svg=document.getElementById('bracket'),sheet=document.getElementById('sheet');
