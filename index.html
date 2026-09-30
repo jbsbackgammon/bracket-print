@@ -45,9 +45,10 @@ function draw(){
    return {x:mapX(finishX),y:previous[0]};
  }
  if(horizontal){
-   const finalEnd=w/2-7;
+   const finalEnd=w/2;
    side(n/2,false,finalEnd);
    side(n/2,true,finalEnd);
+   addLine(finalEnd,h/2,finalEnd,h/2-8);
  }else{
    side(n,false,w-margin-4);
  }
