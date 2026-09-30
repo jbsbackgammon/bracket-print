@@ -26,18 +26,21 @@ function draw(){
  const addBox=(x,y,width,height)=>{const el=document.createElementNS(NS,'rect');for(const [key,value] of Object.entries({x,y,width,height}))el.setAttribute(key,value);svg.append(el)};
  function side(count,mirror,finishX){
    const gap=(h-2*top)/count,boxHeight=gap;
-   const start=margin+boxWidth,rounds=Math.log2(count),step=(finishX-start)/rounds;
+   const start=margin+boxWidth,rounds=Math.log2(count);
+   const step=(finishX-start)/(horizontal?rounds+.7:rounds);
    const mapX=x=>mirror?w-x:x;
    let previous=Array.from({length:count},(_,i)=>top+gap*(i+.5));
    for(const y of previous)addBox(mirror?w-margin-boxWidth:margin,y-boxHeight/2,boxWidth,boxHeight);
    for(let round=0;round<rounds;round++){
-     const x=start+round*step,join=x+step*.68,next=[];
+     const x=start+round*step,join=x+step*(horizontal?1:.68),next=[];
      for(let i=0;i<previous.length;i+=2){
        const a=previous[i],b=previous[i+1],middle=(a+b)/2;
        addLine(mapX(x),a,mapX(join),a);
        addLine(mapX(x),b,mapX(join),b);
        addLine(mapX(join),a-1.06,mapX(join),b+1.06);
-       addLine(mapX(join),middle,mapX(x+step),middle);
+       if(!horizontal||round===rounds-1){
+         addLine(mapX(join),middle,mapX(horizontal?finishX:x+step),middle);
+       }
        next.push(middle);
      }
      previous=next;
