@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A4トーナメント表</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef1f5;color:#17202b;font-family:system-ui,-apple-system,"Yu Gothic",sans-serif}.toolbar{max-width:900px;margin:24px auto;padding:20px;background:white;border-radius:12px;box-shadow:0 3px 18px #17202b12;display:flex;align-items:end;gap:16px;flex-wrap:wrap}.toolbar label{display:block}.toolbar select,.toolbar button{font:inherit;border:1px solid #bac3ce;border-radius:7px;padding:8px 12px;background:white}.toolbar button{background:#174b86;color:white;border-color:#174b86;cursor:pointer}.note{max-width:900px;margin:0 auto 16px;color:#596575;font-size:13px}.sheet{background:white;margin:0 auto 30px;padding:8mm;box-shadow:0 3px 20px #17202b20;overflow:hidden}.sheet.portrait{width:210mm;height:297mm}.sheet.landscape{width:297mm;height:210mm}.title-line{height:30mm;border-bottom:1px solid #222;position:relative}.bracket{display:block;width:100%;height:calc(100% - 30mm)}svg line{stroke:#b7bdc5;stroke-width:8;stroke-linecap:butt;stroke-linejoin:miter;vector-effect:non-scaling-stroke}svg rect{fill:none;stroke:#111;stroke-width:.5;vector-effect:non-scaling-stroke}svg text{fill:#777;font-family:Arial,sans-serif}.footer{display:none}
+@media print{body{background:white}.toolbar,.note{display:none}.sheet{margin:0;box-shadow:none;padding:0;width:auto!important;height:auto!important}.title-line{height:30mm}.bracket{height:calc(100% - 30mm)}html,body{margin:0;padding:0}.sheet.portrait{width:194mm!important;height:281mm!important}.sheet.landscape{width:281mm!important;height:194mm!important}}
+</style>
+<style id="pageRule">@page{size:A4 portrait;margin:8mm}</style>
+</head>
+<body>
+<div class="toolbar"><label><select id="size" aria-label="枠数"><option value="4">4枠</option><option value="8">8枠</option><option value="16" selected>16枠</option><option value="32">32枠</option></select></label><label><select id="orientation" aria-label="用紙の向き"><option value="portrait">A4縦</option><option value="landscape">A4横</option></select></label><button id="print">PDF出力</button></div>
+<main class="sheet portrait" id="sheet"><div class="title-line"></div><svg class="bracket" id="bracket" xmlns="http://www.w3.org/2000/svg" aria-label="空欄のトーナメント表"></svg></main>
+<script>
+const NS='http://www.w3.org/2000/svg';const size=document.getElementById('size'),orientation=document.getElementById('orientation'),svg=document.getElementById('bracket'),sheet=document.getElementById('sheet');
+function draw(){
+ const n=Number(size.value),horizontal=orientation.value==='landscape';
+ sheet.className='sheet '+orientation.value;
+ document.getElementById('pageRule').textContent=`@page{size:A4 ${orientation.value};margin:8mm}`;
+ const w=horizontal?281:194,h=horizontal?164:251;
+ svg.setAttribute('viewBox',`0 0 ${w} ${h}`);svg.replaceChildren();
+ const margin=3,top=3,boxWidth=horizontal?55:54;
+ const addLine=(x1,y1,x2,y2)=>{const el=document.createElementNS(NS,'line');for(const [key,value] of Object.entries({x1,y1,x2,y2}))el.setAttribute(key,value);svg.append(el)};
+ const addBox=(x,y,width,height)=>{const el=document.createElementNS(NS,'rect');for(const [key,value] of Object.entries({x,y,width,height}))el.setAttribute(key,value);svg.append(el)};
+ function side(count,mirror,finishX){
+   const gap=(h-2*top)/count,boxHeight=gap;
+   const start=margin+boxWidth,rounds=Math.log2(count),step=(finishX-start)/rounds;
+   const mapX=x=>mirror?w-x:x;
+   let previous=Array.from({length:count},(_,i)=>top+gap*(i+.5));
+   for(const y of previous)addBox(mirror?w-margin-boxWidth:margin,y-boxHeight/2,boxWidth,boxHeight);
+   for(let round=0;round<rounds;round++){
+     const x=start+round*step,join=x+step*.68,next=[];
+     for(let i=0;i<previous.length;i+=2){
+       const a=previous[i],b=previous[i+1],middle=(a+b)/2;
+       addLine(mapX(x),a,mapX(join),a);
+       addLine(mapX(x),b,mapX(join),b);
+       addLine(mapX(join),a-1.06,mapX(join),b+1.06);
+       addLine(mapX(join),middle,mapX(x+step),middle);
+       next.push(middle);
+     }
+     previous=next;
+   }
+   return {x:mapX(finishX),y:previous[0]};
+ }
+ if(horizontal){
+   const finalEnd=w/2-7;
+   side(n/2,false,finalEnd);
+   side(n/2,true,finalEnd);
+ }else{
+   side(n,false,w-margin-4);
+ }
+}
+size.addEventListener('change',draw);orientation.addEventListener('change',draw);document.getElementById('print').addEventListener('click',()=>window.print());draw();
+</script>
+</body>
+</html>
